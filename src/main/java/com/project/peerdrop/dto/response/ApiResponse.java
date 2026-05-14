@@ -1,4 +1,5 @@
 package com.project.peerdrop.dto.response;
 
-public class ApiResponse {
+public class ApiResponse<T> {
+
 }

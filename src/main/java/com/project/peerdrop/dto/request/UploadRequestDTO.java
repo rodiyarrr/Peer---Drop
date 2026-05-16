@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class UploadRequest {
+public class UploadRequestDTO {
     private String originalFileName;
     private Integer noOfDownloadsAllowed;
     private String password;

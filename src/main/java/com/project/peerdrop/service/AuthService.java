@@ -2,7 +2,7 @@ package com.project.peerdrop.service;
 
 import com.project.peerdrop.dto.request.LoginRequestDTO;
 import com.project.peerdrop.dto.request.SignupRequestDTO;
-import com.project.peerdrop.dto.response.AuthResponse;
+import com.project.peerdrop.dto.response.AuthResponseDTO;
 import com.project.peerdrop.exceptions.InvalidCredentialsException;
 import com.project.peerdrop.exceptions.UserAlreadyExistsException;
 import com.project.peerdrop.exceptions.UserNotFoundException;
@@ -17,7 +17,7 @@ public class AuthService {
     @Autowired
     UserRepository userRepository;
 
-    public AuthResponse login(LoginRequestDTO loginRequestDTO) {
+    public AuthResponseDTO login(LoginRequestDTO loginRequestDTO) {
         User user = userRepository.findByUserEmail(loginRequestDTO.getEmail());
         if (user == null) {
             throw new UserNotFoundException(
@@ -26,7 +26,7 @@ public class AuthService {
         String requestPassword = loginRequestDTO.getPassword();
 
         if (requestPassword.equals(user.getPasswordHash())) {
-            AuthResponse loginSuccessful = new AuthResponse();
+            AuthResponseDTO loginSuccessful = new AuthResponseDTO();
 
             loginSuccessful.setMessage("Login Succesful");
             loginSuccessful.setUserName(user.getUserName());
@@ -40,7 +40,7 @@ public class AuthService {
         }
     }
 
-    public AuthResponse signup(SignupRequestDTO signupRequestDTO) {
+    public AuthResponseDTO signup(SignupRequestDTO signupRequestDTO) {
         User userCheck = userRepository.findByUserEmail(signupRequestDTO.getEmail());
         if (userCheck != null) {
 
@@ -48,14 +48,13 @@ public class AuthService {
 
         }
         User user = new User();
-
         user.setUserName(signupRequestDTO.getUserName());
         user.setUserEmail(signupRequestDTO.getEmail());
         user.setPasswordHash(signupRequestDTO.getPassword());
 
         userRepository.save(user);
 
-        AuthResponse signupSuccessful = new AuthResponse();
+        AuthResponseDTO signupSuccessful = new AuthResponseDTO();
         signupSuccessful.setMessage("Signup Successful!");
         signupSuccessful.setUserName(user.getUserName());
         signupSuccessful.setEmail(user.getUserEmail());

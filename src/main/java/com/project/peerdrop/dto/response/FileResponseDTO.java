@@ -7,7 +7,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class FileResponse {
+public class FileResponseDTO {
+    private String fileName;
     private String shareCode;
     private LocalDateTime expiryTime;
 }

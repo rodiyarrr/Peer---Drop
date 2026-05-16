@@ -18,7 +18,9 @@ public class SharedFile {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID fileId;
-    private String fileName;
+
+    private String originalFileName;
+    private String storedFileName;
 
     // FILE META DATA
     private Long fileSize;

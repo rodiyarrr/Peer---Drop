@@ -2,7 +2,7 @@ package com.project.peerdrop.controller;
 
 import com.project.peerdrop.dto.request.LoginRequestDTO;
 import com.project.peerdrop.dto.request.SignupRequestDTO;
-import com.project.peerdrop.dto.response.AuthResponse;
+import com.project.peerdrop.dto.response.AuthResponseDTO;
 import com.project.peerdrop.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +19,13 @@ public class AuthController {
     public AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> signupController(@RequestBody SignupRequestDTO signupRequestDTO){
+    public ResponseEntity<AuthResponseDTO> signupController(@RequestBody SignupRequestDTO signupRequestDTO){
 
         return ResponseEntity.ok(authService.signup(signupRequestDTO));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> loginController(@RequestBody LoginRequestDTO loginRequestDTO){
+    public ResponseEntity<AuthResponseDTO> loginController(@RequestBody LoginRequestDTO loginRequestDTO){
 
         return ResponseEntity.ok(authService.login(loginRequestDTO));
     }

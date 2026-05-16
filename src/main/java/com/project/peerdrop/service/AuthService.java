@@ -14,12 +14,47 @@ public class AuthService {
     @Autowired
     UserRepository userRepository;
 
-    public AuthResponse login(LoginRequestDTO loginRequestDTO){
-        return null;
+    public AuthResponse login(LoginRequestDTO loginRequestDTO) {
+        User user = userRepository.findByUserEmail(loginRequestDTO.getEmail());
+        if (user == null) {
+            AuthResponse userInvalid = new AuthResponse();
+            userInvalid.setMessage("Login Failed \nUser does not exist.");
+            return userInvalid;
+        }
+        String requestPassword = loginRequestDTO.getPassword();
+
+        if (requestPassword.equals(user.getPasswordHash())) {
+            AuthResponse loginSuccessful = new AuthResponse();
+
+            loginSuccessful.setMessage("Login Succesful");
+            loginSuccessful.setUserName(user.getUserName());
+            loginSuccessful.setEmail(user.getUserEmail());
+
+            return loginSuccessful;
+        }
+
+        else {
+            AuthResponse invalidPassword = new AuthResponse();
+
+            invalidPassword.setMessage("Login Failed \nPassword Mismatch");
+
+            return invalidPassword;
+        }
     }
 
-    public AuthResponse signup(SignupRequestDTO signupRequestDTO){
-        User user=new User();
+    public AuthResponse signup(SignupRequestDTO signupRequestDTO) {
+        User userCheck = userRepository.findByUserEmail(signupRequestDTO.getEmail());
+        if (userCheck != null) {
+
+            AuthResponse emailAlreadyExists = new AuthResponse();
+
+            emailAlreadyExists.setMessage("Signup Failed \nEmail already exists");
+            emailAlreadyExists.setEmail(signupRequestDTO.getEmail());
+
+            return emailAlreadyExists;
+
+        }
+        User user = new User();
 
         user.setUserName(signupRequestDTO.getUserName());
         user.setUserEmail(signupRequestDTO.getEmail());
@@ -27,11 +62,13 @@ public class AuthService {
 
         userRepository.save(user);
 
-        AuthResponse authResponseDTO=new AuthResponse();
-        authResponseDTO.setMessage("Signup Successful!");
-        authResponseDTO.setUserName(user.getUserName());
-        authResponseDTO.setEmail(user.getUserEmail());
+        AuthResponse signupSuccessful = new AuthResponse();
+        signupSuccessful.setMessage("Signup Successful!");
+        signupSuccessful.setUserName(user.getUserName());
+        signupSuccessful.setEmail(user.getUserEmail());
 
-        return authResponseDTO;
+        return signupSuccessful;
     }
 }
+
+

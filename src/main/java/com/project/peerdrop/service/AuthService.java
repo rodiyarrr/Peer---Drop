@@ -3,6 +3,9 @@ package com.project.peerdrop.service;
 import com.project.peerdrop.dto.request.LoginRequestDTO;
 import com.project.peerdrop.dto.request.SignupRequestDTO;
 import com.project.peerdrop.dto.response.AuthResponse;
+import com.project.peerdrop.exceptions.InvalidCredentialsException;
+import com.project.peerdrop.exceptions.UserAlreadyExistsException;
+import com.project.peerdrop.exceptions.UserNotFoundException;
 import com.project.peerdrop.model.User;
 import com.project.peerdrop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +20,8 @@ public class AuthService {
     public AuthResponse login(LoginRequestDTO loginRequestDTO) {
         User user = userRepository.findByUserEmail(loginRequestDTO.getEmail());
         if (user == null) {
-            AuthResponse userInvalid = new AuthResponse();
-            userInvalid.setMessage("Login Failed \nUser does not exist.");
-            return userInvalid;
+            throw new UserNotFoundException(
+                    "No such email found in directory");
         }
         String requestPassword = loginRequestDTO.getPassword();
 
@@ -34,11 +36,7 @@ public class AuthService {
         }
 
         else {
-            AuthResponse invalidPassword = new AuthResponse();
-
-            invalidPassword.setMessage("Login Failed \nPassword Mismatch");
-
-            return invalidPassword;
+            throw new InvalidCredentialsException("Password incorrect");
         }
     }
 
@@ -46,12 +44,7 @@ public class AuthService {
         User userCheck = userRepository.findByUserEmail(signupRequestDTO.getEmail());
         if (userCheck != null) {
 
-            AuthResponse emailAlreadyExists = new AuthResponse();
-
-            emailAlreadyExists.setMessage("Signup Failed \nEmail already exists");
-            emailAlreadyExists.setEmail(signupRequestDTO.getEmail());
-
-            return emailAlreadyExists;
+            throw new UserAlreadyExistsException("Email already exists");
 
         }
         User user = new User();

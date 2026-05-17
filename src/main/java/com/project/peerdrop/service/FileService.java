@@ -2,6 +2,7 @@ package com.project.peerdrop.service;
 
 import com.project.peerdrop.dto.request.UploadRequestDTO;
 import com.project.peerdrop.dto.response.FileResponseDTO;
+import com.project.peerdrop.exceptions.FileExpiredException;
 import com.project.peerdrop.model.SharedFile;
 import com.project.peerdrop.repository.SharedFileRepository;
 import com.project.peerdrop.repository.UserRepository;
@@ -10,11 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Service
 public class FileService {
+
     @Autowired
     private SharedFileRepository sharedFileRepository;
 
@@ -27,7 +30,11 @@ public class FileService {
 
         // Taking file as input
         MultipartFile file= requestDTO.getFile();
-        Long fileSize= file.getSize();
+
+
+        //Unique File Name
+        String storedFileName=System.currentTimeMillis()+"_"+file.getOriginalFilename();
+        sharedFile.setStoredFileName(storedFileName);
 
         //File transfer logic - /uploads
         String uploadPath = System.getProperty("user.dir") + "/uploads/";
@@ -47,22 +54,30 @@ public class FileService {
         sharedFile.setShareCode(shareCode);
 
         //File-Metadata
+        Long fileSize= file.getSize();
         String originalFileName= file.getOriginalFilename();
         sharedFile.setOriginalFileName(originalFileName);
         sharedFile.setMimeType(file.getContentType());
         sharedFile.setFileSize(fileSize);
         sharedFile.setUploadedAt(LocalDateTime.now());
 
-        //Unique File Name
-        String storedFileName=System.currentTimeMillis()+"_"+originalFileName;
-        sharedFile.setStoredFileName(storedFileName);
 
         //CORE SHARING LOGIC
         sharedFile.setMaxDownloadLimit(requestDTO.getNoOfDownloadsAllowed());
         sharedFile.setFilePasswordHash(requestDTO.getPassword());
-        sharedFile.setExpiryTime(requestDTO.getExpiryTime());
         sharedFile.setDownloadCount(0);
 
+        //Expiry Logic
+        Integer expiryValue= requestDTO.getExpiryValue();
+        String expiryUnit=requestDTO.getExpiryUnit();
+        LocalDateTime expiryTime;
+        if(expiryUnit.equalsIgnoreCase("Minutes")){
+            expiryTime=LocalDateTime.now().plusMinutes(expiryValue);
+        }
+        else{
+            expiryTime=LocalDateTime.now().plusHours(expiryValue);
+        }
+        sharedFile.setExpiryTime(expiryTime);
 
         //SAVE TO DB
         sharedFileRepository.save(sharedFile);
@@ -75,5 +90,40 @@ public class FileService {
 
         return responseDTO;
 
+    }
+
+    public File downloadFile(String shareCode) throws FileNotFoundException{
+
+        SharedFile sharedFile=sharedFileRepository.findByShareCode(shareCode);
+
+        //Checking if file exists for the given share code
+        if(sharedFile==null){
+            throw new FileNotFoundException("Invalid Share Code");
+        }
+
+        if (sharedFile.getExpiryTime().isBefore(LocalDateTime.now())){
+            throw new FileExpiredException("File has Expired");
+        }
+
+        if(sharedFile.getDownloadCount()
+                >= sharedFile.getMaxDownloadLimit()){
+
+            throw new RuntimeException(
+                    "Download limit exceeded"
+            );
+        }
+
+        String uploadPath = System.getProperty("user.dir") + "/uploads/";
+        File file=new File(uploadPath,sharedFile.getStoredFileName());
+
+        if(!file.exists()){
+            throw new FileNotFoundException(
+                    "File does not exist on server"
+            );
+        }
+
+        sharedFile.setDownloadCount(sharedFile.getDownloadCount()+1);
+
+        return file;
     }
 }

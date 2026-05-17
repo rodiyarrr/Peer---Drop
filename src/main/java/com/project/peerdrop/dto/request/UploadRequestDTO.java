@@ -13,5 +13,8 @@ public class UploadRequestDTO {
     private MultipartFile file;
     private Integer noOfDownloadsAllowed;
     private String password;
-    private LocalDateTime expiryTime;
+    private Integer expiryValue; //ex- 30
+    private String expiryUnit; // Minutes or Hours
+
+//    private LocalDateTime expiryTime;
 }

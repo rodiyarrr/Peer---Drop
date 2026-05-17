@@ -2,6 +2,7 @@ package com.project.peerdrop.service;
 
 import com.project.peerdrop.dto.request.UploadRequestDTO;
 import com.project.peerdrop.dto.response.FileResponseDTO;
+import com.project.peerdrop.exceptions.DownloadLimitExceededException;
 import com.project.peerdrop.exceptions.FileExpiredException;
 import com.project.peerdrop.model.SharedFile;
 import com.project.peerdrop.repository.SharedFileRepository;
@@ -108,7 +109,7 @@ public class FileService {
         if(sharedFile.getDownloadCount()
                 >= sharedFile.getMaxDownloadLimit()){
 
-            throw new RuntimeException(
+            throw new DownloadLimitExceededException(
                     "Download limit exceeded"
             );
         }
@@ -123,7 +124,7 @@ public class FileService {
         }
 
         sharedFile.setDownloadCount(sharedFile.getDownloadCount()+1);
-
+        sharedFileRepository.save(sharedFile);
         return file;
     }
 }

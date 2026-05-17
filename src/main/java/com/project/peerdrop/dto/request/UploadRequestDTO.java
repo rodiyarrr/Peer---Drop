@@ -16,5 +16,4 @@ public class UploadRequestDTO {
     private Integer expiryValue; //ex- 30
     private String expiryUnit; // Minutes or Hours
 
-//    private LocalDateTime expiryTime;
 }

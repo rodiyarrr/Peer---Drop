@@ -1,6 +1,5 @@
 package com.project.peerdrop.exceptions;
 
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,6 +31,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleFileExpiredException(FileExpiredException exception){
 
         return ResponseEntity.status(HttpStatus.GONE)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler(DownloadLimitExceededException.class)
+    public ResponseEntity<String> handleDownloadLimitException(DownloadLimitExceededException exception){
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(exception.getMessage());
     }
 

@@ -20,12 +20,13 @@ public class DownloadController {
     public FileService fileService;
 
     @GetMapping("/{shareCode}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String shareCode) throws FileNotFoundException {
+    public ResponseEntity<Resource> downloadFile(@PathVariable String shareCode,@RequestParam(required = false) String enteredPassword) throws FileNotFoundException {
 
-        File file=fileService.downloadFile(shareCode);
+        File file=fileService.downloadFile(shareCode,enteredPassword);
 
         Resource resource= new FileSystemResource(file);
 
         return ResponseEntity.ok().body(resource);
     }
+
 }

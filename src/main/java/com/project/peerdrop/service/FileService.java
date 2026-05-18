@@ -4,6 +4,8 @@ import com.project.peerdrop.dto.request.UploadRequestDTO;
 import com.project.peerdrop.dto.response.FileResponseDTO;
 import com.project.peerdrop.exceptions.DownloadLimitExceededException;
 import com.project.peerdrop.exceptions.FileExpiredException;
+import com.project.peerdrop.exceptions.InvalidPasswordException;
+import com.project.peerdrop.exceptions.NoPasswordEnteredException;
 import com.project.peerdrop.model.SharedFile;
 import com.project.peerdrop.repository.SharedFileRepository;
 import com.project.peerdrop.repository.UserRepository;
@@ -93,7 +95,7 @@ public class FileService {
 
     }
 
-    public File downloadFile(String shareCode) throws FileNotFoundException{
+    public File downloadFile(String shareCode,String enteredPassword) throws FileNotFoundException{
 
         SharedFile sharedFile=sharedFileRepository.findByShareCode(shareCode);
 
@@ -101,7 +103,14 @@ public class FileService {
         if(sharedFile==null){
             throw new FileNotFoundException("Invalid Share Code");
         }
-
+        if (sharedFile.getFilePasswordHash()!=null){
+            if( enteredPassword==null){
+                throw new NoPasswordEnteredException("File is Password Protected");
+            }
+            if (!enteredPassword.equals(sharedFile.getFilePasswordHash())){
+                throw new InvalidPasswordException("Password Mismatch");
+            }
+        }
         if (sharedFile.getExpiryTime().isBefore(LocalDateTime.now())){
             throw new FileExpiredException("File has Expired");
         }

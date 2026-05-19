@@ -9,6 +9,7 @@ import com.project.peerdrop.exceptions.UserNotFoundException;
 import com.project.peerdrop.model.User;
 import com.project.peerdrop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +17,9 @@ public class AuthService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     public AuthResponseDTO login(LoginRequestDTO loginRequestDTO) {
         User user = userRepository.findByUserEmail(loginRequestDTO.getEmail());
@@ -25,7 +29,7 @@ public class AuthService {
         }
         String requestPassword = loginRequestDTO.getPassword();
 
-        if (requestPassword.equals(user.getPasswordHash())) {
+        if (passwordEncoder.matches(loginRequestDTO.getPassword(),user.getPasswordHash())) {
             AuthResponseDTO loginSuccessful = new AuthResponseDTO();
 
             loginSuccessful.setMessage("Login Succesful");
@@ -50,7 +54,9 @@ public class AuthService {
         User user = new User();
         user.setUserName(signupRequestDTO.getUserName());
         user.setUserEmail(signupRequestDTO.getEmail());
-        user.setPasswordHash(signupRequestDTO.getPassword());
+//        user.setPasswordHash(signupRequestDTO.getPassword());
+        String hashedPassword= passwordEncoder.encode(signupRequestDTO.getPassword());
+        user.setPasswordHash(hashedPassword);
 
         userRepository.save(user);
 

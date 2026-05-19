@@ -1,5 +1,6 @@
 package com.project.peerdrop.service;
 
+import com.project.peerdrop.config.SecurityConfig;
 import com.project.peerdrop.dto.request.UploadRequestDTO;
 import com.project.peerdrop.dto.response.FileResponseDTO;
 import com.project.peerdrop.exceptions.DownloadLimitExceededException;
@@ -10,6 +11,7 @@ import com.project.peerdrop.model.SharedFile;
 import com.project.peerdrop.repository.SharedFileRepository;
 import com.project.peerdrop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,13 +29,15 @@ public class FileService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
     public FileResponseDTO uploadFile(UploadRequestDTO requestDTO) throws IOException {
 
         SharedFile sharedFile=new SharedFile();
 
         // Taking file as input
         MultipartFile file= requestDTO.getFile();
-
 
         //Unique File Name
         String storedFileName=System.currentTimeMillis()+"_"+file.getOriginalFilename();

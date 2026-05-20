@@ -71,7 +71,12 @@ public class FileService {
 
         //CORE SHARING LOGIC
         sharedFile.setMaxDownloadLimit(requestDTO.getNoOfDownloadsAllowed());
-        sharedFile.setFilePasswordHash(requestDTO.getPassword());
+        // sharedFile.setFilePasswordHash(requestDTO.getPassword());
+        String password=requestDTO.getPassword();
+        if(password!=null
+        && !password.isBlank()){
+            sharedFile.setFilePasswordHash(passwordEncoder.encode(password));            
+        }
         sharedFile.setDownloadCount(0);
 
         //Expiry Logic
@@ -111,7 +116,7 @@ public class FileService {
             if( enteredPassword==null){
                 throw new NoPasswordEnteredException("File is Password Protected");
             }
-            if (!enteredPassword.equals(sharedFile.getFilePasswordHash())){
+            if (!passwordEncoder.matches(enteredPassword, sharedFile.getFilePasswordHash())){
                 throw new InvalidPasswordException("Password Mismatch");
             }
         }

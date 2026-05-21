@@ -8,6 +8,7 @@ import com.project.peerdrop.exceptions.UserAlreadyExistsException;
 import com.project.peerdrop.exceptions.UserNotFoundException;
 import com.project.peerdrop.model.User;
 import com.project.peerdrop.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
